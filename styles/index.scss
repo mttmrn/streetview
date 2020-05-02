@@ -1,0 +1,157 @@
+@import "./reset.scss";
+@import "./react-datepicker.scss";
+@import "./datepicker";
+
+$animate: all 2s ease-in-out;
+
+.gm-compass {
+  display: none !important;
+}
+
+#map {
+  width: 250px;
+  height: 250px;
+  border: 0;
+  position: absolute;
+  top: 100px;
+  right: 20px;
+}
+
+.page {
+  font-family: system-ui;
+  font-weight: 200;
+
+  > .container {
+    height: 500px;
+    width: 500px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.35);
+    padding-bottom: 20px;
+    padding-top: 10px;
+  }
+
+  .final-form {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .form-item {
+    position: relative;
+    width: 285px;
+    height: 45px;
+    margin: 10px 0 0 0;
+
+    &::before {
+      content: "";
+      display: block;
+      border: 0.5px solid rgb(86, 122, 176);
+      width: 10px;
+      position: absolute;
+      left: 8px;
+      bottom: 8px;
+      opacity: 0;
+      transition: $animate;
+      transition-duration: 0.2s;
+      transform-origin: left;
+    }
+
+    &.focus {
+      transition: $animate;
+      &::before {
+        content: "";
+        display: block;
+        border: 0.5px solid rgb(86, 122, 176);
+        transform: scaleX(30.3);
+        position: absolute;
+        left: -11.5px;
+        bottom: 8px;
+        transition: $animate;
+        transition-duration: 0.2s;
+        opacity: 1;
+      }
+    }
+
+    input {
+      width: 100%;
+      height: 100%;
+      border-radius: 2px;
+      border: 1px solid #dbdbdb;
+      font-size: 20px;
+      padding: 15px 6px 0px 6px;
+      outline: none;
+    }
+
+    .label {
+      color: #484848;
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      font-size: 14px;
+    }
+  }
+
+  p {
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
+    margin: 40px 0 0 0;
+  }
+
+  button {
+    transition: $animate;
+    transition-duration: 0.25s;
+  }
+
+  .gm-iv-address {
+    display: none !important;
+  }
+}
+
+#pano {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+button {
+  border-radius: 2px;
+  border: 1px solid #dbdbdb;
+  font-size: 20px;
+  outline: none;
+  position: relative;
+  width: 285px;
+  height: 60px;
+  margin: 10px 0 0 0;
+  font-weight: 200;
+  background: #e2e2e2;
+  cursor: pointer;
+}
+
+header {
+  position: absolute;
+  top: 100px;
+  left: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: white;
+  height: 400px;
+  width: 400px;
+  padding: 25px;
+}
+
+h1 {
+  font-weight: 300;
+  font-size: 28px;
+  margin-bottom: 25px;
+}

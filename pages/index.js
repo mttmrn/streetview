@@ -1,204 +1,133 @@
-import Head from 'next/head'
+import Head from "next/head";
+import randomStreetView from "random-streetview";
+import { useState, useEffect } from "react";
+import initMap from "../components/initMap";
+import TextInput from "~/components/Form/TextInput";
+import { Form } from "react-final-form";
+import "react-dates/initialize";
+import { DateRangePicker } from "react-dates";
+import axios from "axios";
+import {
+  getAddressCity,
+  getAddressState,
+  getAddressCountry,
+} from "../components/Util/getLocationString";
+
+function Datepicker() {
+  const [dateRange, setdateRange] = useState({
+    startDate: null,
+    endDate: null,
+  });
+  const [focus, setFocus] = useState(null);
+
+  const { startDate, endDate } = dateRange;
+
+  const handleOnDateChange = (startDate, endDate) =>
+    setdateRange(startDate, endDate);
+
+  return (
+    <DateRangePicker
+      startDate={startDate}
+      onDatesChange={handleOnDateChange}
+      endDate={endDate}
+      numberOfMonths={1}
+      displayFormat="MMM D"
+      focusedInput={focus}
+      onFocusChange={(focus) => setFocus(focus)}
+      startDateId="startDate"
+      endDateId="endDate"
+    />
+  );
+}
 
 export default function Home() {
+  const [coordinates, setCoordinates] = useState([]);
+  const [location, setLocation] = useState(null);
+
+  const onClient = () => typeof window !== "undefined";
+
+  const getAddressCity = (address, length) => {
+    const findType = (type) => type.types[0] === "locality";
+    const location = address.map((obj) => obj);
+    const rr = location.filter(findType)[0];
+
+    return rr.long_name ? rr.long_name : rr.short_name;
+  };
+
+  const geocode = () => {
+    axios
+      .get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${coordinates[0]},${coordinates[1]}&key=AIzaSyArsb4Om72FY0mvhkBzPNcuPczOhHOStfo`
+      )
+      .then((res) => {
+        console.log(res.data);
+        console.log(res.data.plus_code.compound_code.split(" "));
+        let city = getAddressCity(res.data.results[0].address_components);
+        let state = getAddressState(res.data.results[0].address_components);
+        let country = getAddressCountry(res.data.results[0].address_components);
+        let locString = [city, state, country].join(", ").trim();
+        setLocation(locString);
+      })
+      .catch((err) => console.log(err));
+  };
+  geocode();
+
+  const getData = async () => {
+    randomStreetView.setParameters({
+      enableCaching: true,
+      endZoom: 14,
+      cacheKey: false,
+      type: "sv",
+      distribution: "weighted",
+    });
+    const location = await randomStreetView.getRandomLocation();
+    console.log(location[0].toFixed(6), location[1].toFixed(6));
+    setCoordinates(location);
+  };
+
+  useEffect(() => {
+    getData();
+    geocode();
+    return () => {
+      console.log("Cleanup");
+    };
+  }, []);
+
+  if (coordinates.length > 0) {
+    initMap(coordinates);
+  }
+
   return (
-    <div className="container">
+    <div className="page">
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <main>
-        <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className="description">
-          Get started by editing <code>pages/index.js</code>
-        </p>
-
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/zeit/next.js/tree/master/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://zeit.co/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with ZEIT Now.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer>
-        <a
-          href="https://zeit.co?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by <img src="/zeit.svg" alt="ZEIT Logo" />
-        </a>
-      </footer>
-
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer img {
-          margin-left: 0.5rem;
-        }
-
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
-        .description {
-          text-align: center;
-        }
-
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
+      <header>
+        <h1>{location}</h1>
+        <Datepicker />
+        <Form
+          onSubmit={() => {
+            console.log("submit");
+          }}
+          render={function () {
+            return (
+              <>
+                <TextInput name="username" label="Username / Email" />
+                <TextInput type="password" name="password" label="Password" />
+              </>
+            );
+          }}
+        />
+        {onClient() && coordinates.length > 0 ? (
+          <button onClick={getData} className="description">
+            Next
+            {/* Make button have singular > that splits into 2 >> on hover */}
+          </button>
+        ) : null}
+      </header>
+      <div id="map"></div>
+      <div id="pano"></div>
     </div>
-  )
+  );
 }
